@@ -259,47 +259,50 @@ function OperationsPage() {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Operations</h2>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-900">Operations</h2>
+        <p className="text-gray-600 mt-1 text-sm">Manage stock movements and transactions</p>
+      </div>
 
-      <div className="border-b border-gray-200 mb-6">
-        <div className="flex space-x-4">
+      <div className="border-b border-gray-200">
+        <div className="flex space-x-1">
           <button
             onClick={() => setActiveTab("receipts")}
-            className={`px-4 py-2 font-medium transition-colors ${
+            className={`px-4 py-2.5 font-medium text-sm transition-colors rounded-t-lg ${
               activeTab === "receipts"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-600 hover:text-gray-800"
+                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
             Receipts
           </button>
           <button
             onClick={() => setActiveTab("deliveries")}
-            className={`px-4 py-2 font-medium transition-colors ${
+            className={`px-4 py-2.5 font-medium text-sm transition-colors rounded-t-lg ${
               activeTab === "deliveries"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-600 hover:text-gray-800"
+                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
             Deliveries
           </button>
           <button
             onClick={() => setActiveTab("adjustments")}
-            className={`px-4 py-2 font-medium transition-colors ${
+            className={`px-4 py-2.5 font-medium text-sm transition-colors rounded-t-lg ${
               activeTab === "adjustments"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-600 hover:text-gray-800"
+                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
             Adjustments
           </button>
           <button
             onClick={() => setActiveTab("history")}
-            className={`px-4 py-2 font-medium transition-colors ${
+            className={`px-4 py-2.5 font-medium text-sm transition-colors rounded-t-lg ${
               activeTab === "history"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-600 hover:text-gray-800"
+                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
             Move History
@@ -309,8 +312,8 @@ function OperationsPage() {
 
       {activeTab === "receipts" && (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Create Receipt
             </h3>
             <form onSubmit={handleReceiptSubmit} className="space-y-4">
@@ -387,15 +390,15 @@ function OperationsPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed font-medium text-sm shadow-sm"
               >
                 {loading ? "Creating..." : "Create Receipt"}
               </button>
             </form>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Receipts List
             </h3>
             {receiptsLoading ? (
@@ -404,52 +407,52 @@ function OperationsPage() {
               <div className="text-gray-600">No receipts found</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+                <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Reference
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Warehouse
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Supplier
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Date
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-100">
                     {receipts.map((receipt) => (
-                      <tr key={receipt.id} className="border-b border-gray-100">
-                        <td className="py-3 px-4 text-sm text-gray-700">
+                      <tr key={receipt.id} className="hover:bg-gray-50 transition-colors duration-150">
+                        <td className="py-3 px-4 text-sm text-gray-900 font-mono text-xs">
                           {receipt.reference}
                         </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
+                        <td className="py-3 px-4 text-sm text-gray-600">
                           {receipt.warehouse?.name || receipt.warehouseId}
                         </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {receipt.supplier || "-"}
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          {receipt.supplier || <span className="text-gray-400">—</span>}
                         </td>
                         <td className="py-3 px-4 text-sm">
                           <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                               receipt.status === "CONFIRMED"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-green-100 text-green-700"
                                 : receipt.status === "DRAFT"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-red-100 text-red-700"
                             }`}
                           >
                             {receipt.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
+                        <td className="py-3 px-4 text-sm text-gray-600">
                           {formatDate(receipt.createdAt)}
                         </td>
                       </tr>
@@ -464,8 +467,8 @@ function OperationsPage() {
 
       {activeTab === "deliveries" && (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Create Delivery
             </h3>
             <form onSubmit={handleDeliverySubmit} className="space-y-4">
@@ -542,15 +545,15 @@ function OperationsPage() {
               <button
                 type="submit"
                 disabled={deliveryLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed font-medium text-sm shadow-sm"
               >
                 {deliveryLoading ? "Creating..." : "Create Delivery"}
               </button>
             </form>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Deliveries List
             </h3>
             {deliveriesLoading ? (
@@ -619,8 +622,8 @@ function OperationsPage() {
 
       {activeTab === "adjustments" && (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Create Adjustment
             </h3>
             <form onSubmit={handleAdjustmentSubmit} className="space-y-4">
@@ -701,15 +704,15 @@ function OperationsPage() {
               <button
                 type="submit"
                 disabled={adjustmentLoading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed font-medium text-sm shadow-sm"
               >
                 {adjustmentLoading ? "Creating..." : "Create Adjustment"}
               </button>
             </form>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Adjustments List
             </h3>
             {adjustmentsLoading ? (
@@ -761,8 +764,8 @@ function OperationsPage() {
       )}
 
       {activeTab === "history" && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Move History
           </h3>
           {ledgerLoading ? (

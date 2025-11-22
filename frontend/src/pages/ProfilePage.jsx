@@ -27,49 +27,52 @@ function ProfilePage() {
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Profile</h2>
-      <div className="bg-white rounded-lg shadow-sm p-6 max-w-md">
-        <div className="space-y-4">
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-900">Profile</h2>
+        <p className="text-gray-600 mt-1 text-sm">Your account information</p>
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-6 max-w-md">
+        <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Name
             </label>
             <input
               type="text"
               value={user.name || ""}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Email
             </label>
             <input
               type="email"
               value={user.email || ""}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Role
             </label>
             <input
               type="text"
               value={user.role || "user"}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 capitalize"
             />
           </div>
           <div className="pt-4 border-t border-gray-200">
             <button
               onClick={handleLogout}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm shadow-sm"
             >
-              Logout
+              Sign Out
             </button>
           </div>
         </div>

@@ -96,37 +96,62 @@ function DashboardPage() {
     {
       title: "Total Products",
       value: totalProducts,
-      icon: "📦",
-      color: "from-blue-500 to-blue-600",
-      textColor: "text-blue-600",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      ),
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
+      textColor: "text-blue-700",
     },
     {
       title: "Total Warehouses",
       value: totalWarehouses,
-      icon: "🏭",
-      color: "from-purple-500 to-purple-600",
-      textColor: "text-purple-600",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      ),
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
+      textColor: "text-purple-700",
     },
     {
       title: "Low Stock Items",
       value: lowStockCount,
-      icon: "⚠️",
-      color: "from-red-500 to-red-600",
-      textColor: "text-red-600",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      ),
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+      textColor: "text-red-700",
     },
     {
       title: "Pending Receipts",
       value: pendingReceipts,
-      icon: "📥",
-      color: "from-yellow-500 to-yellow-600",
-      textColor: "text-yellow-600",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+      ),
+      bgColor: "bg-yellow-50",
+      iconColor: "text-yellow-600",
+      textColor: "text-yellow-700",
     },
     {
       title: "Pending Deliveries",
       value: pendingDeliveries,
-      icon: "📤",
-      color: "from-orange-500 to-orange-600",
-      textColor: "text-orange-600",
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+        </svg>
+      ),
+      bgColor: "bg-orange-50",
+      iconColor: "text-orange-600",
+      textColor: "text-orange-700",
     },
   ];
 
@@ -134,15 +159,15 @@ function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
-          <p className="text-gray-600 mt-1">Overview of your inventory</p>
+          <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
+          <p className="text-gray-600 mt-1 text-sm">Overview of your inventory</p>
         </div>
         <div className="flex items-center space-x-3">
           <label className="text-sm font-medium text-gray-700">Filter:</label>
           <select
             value={selectedWarehouse}
             onChange={(e) => setSelectedWarehouse(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((warehouse) => (
@@ -154,33 +179,31 @@ function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {cards.map((card, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100"
+            className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow duration-200"
           >
-            <div className={`bg-gradient-to-br ${card.color} p-4`}>
-              <div className="flex items-center justify-between">
-                <span className="text-3xl">{card.icon}</span>
-                <div className="text-right">
-                  <p className="text-white text-3xl font-bold">{card.value}</p>
-                </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className={`p-2 ${card.bgColor} rounded-lg`}>
+                <span className={card.iconColor}>{card.icon}</span>
               </div>
             </div>
-            <div className="p-4">
-              <p className={`text-sm font-semibold ${card.textColor} uppercase tracking-wide`}>
-                {card.title}
-              </p>
+            <div>
+              <p className={`text-2xl font-semibold ${card.textColor} mb-1`}>{card.value}</p>
+              <p className="text-sm text-gray-600 font-medium">{card.title}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-          <h3 className="text-lg font-bold text-gray-800 flex items-center space-x-2">
-            <span>📋</span>
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span>Recent Activity</span>
           </h3>
         </div>
@@ -194,23 +217,23 @@ function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Date/Time
                     </th>
-                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Product
                     </th>
-                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Warehouse
                     </th>
-                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Change
                     </th>
-                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Type
                     </th>
-                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Reference
                     </th>
                   </tr>
@@ -219,34 +242,34 @@ function DashboardPage() {
                   {recentActivity.map((entry) => (
                     <tr
                       key={entry.id}
-                      className="hover:bg-blue-50 transition-colors duration-150"
+                      className="hover:bg-gray-50 transition-colors duration-150"
                     >
-                      <td className="py-4 px-4 text-sm text-gray-700">
+                      <td className="py-3 px-4 text-sm text-gray-600">
                         {formatDate(entry.createdAt)}
                       </td>
-                      <td className="py-4 px-4 text-sm font-medium text-gray-900">
+                      <td className="py-3 px-4 text-sm font-medium text-gray-900">
                         {entry.product?.name || entry.productId}
                       </td>
-                      <td className="py-4 px-4 text-sm text-gray-700">
+                      <td className="py-3 px-4 text-sm text-gray-600">
                         {entry.warehouse?.name || entry.warehouseId}
                       </td>
-                      <td className="py-4 px-4 text-sm">
+                      <td className="py-3 px-4 text-sm">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                             entry.change > 0
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
                           }`}
                         >
                           {formatChange(entry.change)}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-sm">
+                      <td className="py-3 px-4 text-sm">
                         <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                           {entry.type}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-sm text-gray-600 font-mono">
+                      <td className="py-3 px-4 text-sm text-gray-600 font-mono text-xs">
                         {entry.reference || "-"}
                       </td>
                     </tr>
