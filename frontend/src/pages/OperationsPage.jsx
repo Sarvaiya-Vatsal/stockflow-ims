@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../services/api";
 
 function OperationsPage() {
@@ -18,6 +18,9 @@ function OperationsPage() {
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [deliverySuccess, setDeliverySuccess] = useState("");
   const [deliveryError, setDeliveryError] = useState("");
+
+  const [ledgerEntries, setLedgerEntries] = useState([]);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
 
   const handleReceiptSubmit = async (e) => {
     e.preventDefault();
@@ -95,6 +98,33 @@ function OperationsPage() {
     }
   };
 
+  useEffect(() => {
+    if (activeTab === "history") {
+      const fetchLedger = async () => {
+        setLedgerLoading(true);
+        try {
+          const response = await api.get("/stock/ledger");
+          setLedgerEntries(response.data);
+        } catch (err) {
+          console.error("Failed to fetch ledger:", err);
+          setLedgerEntries([]);
+        } finally {
+          setLedgerLoading(false);
+        }
+      };
+      fetchLedger();
+    }
+  }, [activeTab]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
+
+  const formatChange = (change) => {
+    return change > 0 ? `+${change}` : `${change}`;
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Operations</h2>
@@ -120,6 +150,16 @@ function OperationsPage() {
             }`}
           >
             Deliveries
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === "history"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Move History
           </button>
         </div>
       </div>
@@ -271,6 +311,74 @@ function OperationsPage() {
               {deliveryLoading ? "Creating..." : "Create Delivery"}
             </button>
           </form>
+        </div>
+      )}
+
+      {activeTab === "history" && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            Move History
+          </h3>
+          {ledgerLoading ? (
+            <div className="text-gray-600">Loading...</div>
+          ) : ledgerEntries.length === 0 ? (
+            <div className="text-gray-600">No entries found</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      Date/Time
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      Product
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      Warehouse
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      Change
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      Type
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                      Reference
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ledgerEntries.map((entry) => (
+                    <tr key={entry.id} className="border-b border-gray-100">
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {formatDate(entry.createdAt)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {entry.product?.name || entry.productId}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {entry.warehouse?.name || entry.warehouse?.code || entry.warehouseId}
+                      </td>
+                      <td
+                        className={`py-3 px-4 text-sm font-medium ${
+                          entry.change > 0 ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {formatChange(entry.change)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {entry.type}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {entry.reference || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
