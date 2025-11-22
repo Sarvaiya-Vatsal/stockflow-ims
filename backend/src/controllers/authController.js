@@ -10,6 +10,14 @@ async function register(req, res) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    const emailVerification = await prisma.emailVerification.findUnique({
+      where: { email },
+    });
+
+    if (!emailVerification || !emailVerification.verified) {
+      return res.status(400).json({ error: "Email not verified" });
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -26,6 +34,10 @@ async function register(req, res) {
         email,
         passwordHash,
       },
+    });
+
+    await prisma.emailVerification.delete({
+      where: { email },
     });
 
     res.status(201).json({ message: "User registered successfully" });

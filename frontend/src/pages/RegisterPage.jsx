@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 
 function RegisterPage() {
@@ -9,8 +9,16 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+  }, [searchParams]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,7 +89,8 @@ function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={!!searchParams.get("email")}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
             />
           </div>
           <div>
@@ -125,6 +134,12 @@ function RegisterPage() {
           Already have an account?{" "}
           <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
             Login
+          </Link>
+        </p>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Need to verify email?{" "}
+          <Link to="/verify-email" className="text-blue-600 hover:text-blue-700 font-medium">
+            Verify Email
           </Link>
         </p>
       </div>
