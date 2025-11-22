@@ -1,19 +1,5 @@
 # StockFlow IMS API Endpoints
 
-## Health Check
-
-**GET /api/health**
-
-Returns server status and current timestamp.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "time": "2024-01-01T00:00:00.000Z"
-}
-```
-
 ## Authentication
 
 **POST /api/auth/register**
@@ -29,13 +15,6 @@ Register a new user account.
 }
 ```
 
-**Response:** 201 Created
-```json
-{
-  "message": "User registered successfully"
-}
-```
-
 **POST /api/auth/login**
 
 Authenticate user and receive JWT token.
@@ -48,41 +27,11 @@ Authenticate user and receive JWT token.
 }
 ```
 
-**Response:** 200 OK
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "clxxx",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "user"
-  }
-}
-```
-
 ## Products
 
 **GET /api/products**
 
 Retrieve all products with total stock count.
-
-**Response:** 200 OK
-```json
-[
-  {
-    "id": "clxxx",
-    "name": "Steel Rod",
-    "sku": "STEEL-001",
-    "category": "Raw Material",
-    "unit": "kg",
-    "reorderLevel": 50,
-    "totalStock": 150,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
-]
-```
 
 **POST /api/products**
 
@@ -99,45 +48,44 @@ Create a new product.
 }
 ```
 
-**Response:** 201 Created
-```json
-{
-  "id": "clxxx",
-  "name": "Steel Rod",
-  "sku": "STEEL-001",
-  "category": "Raw Material",
-  "unit": "kg",
-  "reorderLevel": 50,
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
-```
+## Stock Operations
 
-**PUT /api/products/:id**
+**POST /api/stock/receipts**
 
-Update an existing product.
+Create a receipt for incoming stock.
 
 **Request Body:**
 ```json
 {
-  "name": "Steel Rod Updated",
-  "category": "Materials",
-  "unit": "kg",
-  "reorderLevel": 75
+  "supplier": "Supplier Name",
+  "warehouseId": "warehouse-id",
+  "lines": [
+    {
+      "productId": "product-id",
+      "quantity": 100
+    }
+  ]
 }
 ```
 
-**Response:** 200 OK
+**POST /api/stock/deliveries**
+
+Create a delivery for outgoing stock.
+
+**Request Body:**
 ```json
 {
-  "id": "clxxx",
-  "name": "Steel Rod Updated",
-  "sku": "STEEL-001",
-  "category": "Materials",
-  "unit": "kg",
-  "reorderLevel": 75,
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
+  "customer": "Customer Name",
+  "warehouseId": "warehouse-id",
+  "lines": [
+    {
+      "productId": "product-id",
+      "quantity": 50
+    }
+  ]
 }
 ```
 
+**GET /api/stock/ledger**
+
+Retrieve recent stock movement history.
