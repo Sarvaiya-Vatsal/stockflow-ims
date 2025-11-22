@@ -43,13 +43,13 @@ async function createDelivery(req, res) {
 
     for (const line of lines) {
       try {
-        await applyStockChange(
-          line.productId,
+        await applyStockChange({
+          productId: line.productId,
           warehouseId,
-          -line.quantity,
-          "DELIVERY",
-          delivery.reference
-        );
+          quantityChange: -line.quantity,
+          type: "DELIVERY",
+          reference: delivery.reference,
+        });
       } catch (error) {
         if (error.message === "Insufficient stock") {
           await prisma.delivery.delete({ where: { id: delivery.id } });

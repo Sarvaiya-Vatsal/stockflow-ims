@@ -1,6 +1,7 @@
 const prisma = require("../config/prismaClient");
 
-async function applyStockChange(productId, warehouseId, quantityChange, type, reference) {
+
+async function applyStockChange({ productId, warehouseId, quantityChange, type, reference }) {
   const stock = await prisma.inventoryStock.findUnique({
     where: {
       productId_warehouseId: {
@@ -10,11 +11,13 @@ async function applyStockChange(productId, warehouseId, quantityChange, type, re
     },
   });
 
+  let updatedStock;
+
   if (!stock) {
     if (quantityChange < 0) {
       throw new Error("Insufficient stock");
     }
-    await prisma.inventoryStock.create({
+    updatedStock = await prisma.inventoryStock.create({
       data: {
         productId,
         warehouseId,
@@ -26,7 +29,7 @@ async function applyStockChange(productId, warehouseId, quantityChange, type, re
     if (newQuantity < 0) {
       throw new Error("Insufficient stock");
     }
-    await prisma.inventoryStock.update({
+    updatedStock = await prisma.inventoryStock.update({
       where: {
         id: stock.id,
       },
@@ -36,7 +39,7 @@ async function applyStockChange(productId, warehouseId, quantityChange, type, re
     });
   }
 
-  await prisma.ledgerEntry.create({
+  const ledgerEntry = await prisma.ledgerEntry.create({
     data: {
       productId,
       warehouseId,
@@ -45,6 +48,8 @@ async function applyStockChange(productId, warehouseId, quantityChange, type, re
       reference,
     },
   });
+
+  return { stock: updatedStock, ledgerEntry };
 }
 
 module.exports = {
