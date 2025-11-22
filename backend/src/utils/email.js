@@ -1,18 +1,34 @@
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const isEmailConfigured = process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS;
+
+let transporter = null;
+
+if (isEmailConfigured) {
+  transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT || "587"),
+    secure: process.env.EMAIL_SECURE === "true",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+}
 
 async function sendOTP(email, otp) {
+  if (!isEmailConfigured) {
+    console.log("\n===========================================");
+    console.log("📧 EMAIL VERIFICATION OTP (DEV MODE)");
+    console.log("===========================================");
+    console.log(`Email: ${email}`);
+    console.log(`OTP Code: ${otp}`);
+    console.log("===========================================\n");
+    return;
+  }
+
   const mailOptions = {
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to: email,
     subject: "StockFlow IMS - Email Verification OTP",
     text: `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
@@ -29,8 +45,18 @@ async function sendOTP(email, otp) {
 }
 
 async function sendPasswordResetOTP(email, otp) {
+  if (!isEmailConfigured) {
+    console.log("\n===========================================");
+    console.log("🔐 PASSWORD RESET OTP (DEV MODE)");
+    console.log("===========================================");
+    console.log(`Email: ${email}`);
+    console.log(`OTP Code: ${otp}`);
+    console.log("===========================================\n");
+    return;
+  }
+
   const mailOptions = {
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to: email,
     subject: "StockFlow IMS - Password Reset OTP",
     text: `Your password reset code is: ${otp}\n\nThis code will expire in 10 minutes.`,

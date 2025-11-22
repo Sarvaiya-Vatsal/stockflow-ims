@@ -1,8 +1,16 @@
 const prisma = require("../config/prismaClient");
 const { sendOTP } = require("../utils/email");
 
+if (!prisma) {
+  console.error("Prisma Client is not initialized");
+}
+
 async function requestOTP(req, res) {
   try {
+    if (!prisma) {
+      return res.status(500).json({ error: "Database connection not available" });
+    }
+
     const { email } = req.body;
 
     if (!email) {
@@ -48,12 +56,20 @@ async function requestOTP(req, res) {
       });
     }
 
-    await sendOTP(email, otp);
+    try {
+      await sendOTP(email, otp);
+    } catch (emailError) {
+      console.error("Email sending error:", emailError);
+      throw new Error(`Failed to send email: ${emailError.message}`);
+    }
 
     res.json({ message: "OTP sent" });
   } catch (error) {
     console.error("Error sending OTP:", error);
-    res.status(500).json({ error: "Failed to send OTP" });
+    res.status(500).json({ 
+      error: error.message || "Failed to send OTP",
+      details: process.env.NODE_ENV === "development" ? error.stack : undefined
+    });
   }
 }
 

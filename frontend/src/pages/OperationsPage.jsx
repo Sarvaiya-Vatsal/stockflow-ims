@@ -22,6 +22,28 @@ function OperationsPage() {
   const [ledgerEntries, setLedgerEntries] = useState([]);
   const [ledgerLoading, setLedgerLoading] = useState(false);
 
+  const [products, setProducts] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsRes, warehousesRes] = await Promise.all([
+          api.get("/products"),
+          api.get("/warehouses"),
+        ]);
+        setProducts(productsRes.data);
+        setWarehouses(warehousesRes.data);
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleReceiptSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -125,6 +147,14 @@ function OperationsPage() {
     return change > 0 ? `+${change}` : `${change}`;
   };
 
+  if (loadingData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Operations</h2>
@@ -183,27 +213,39 @@ function OperationsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Warehouse ID <span className="text-red-500">*</span>
+                Warehouse <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={warehouseId}
                 onChange={(e) => setWarehouseId(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">Select warehouse</option>
+                {warehouses.map((warehouse) => (
+                  <option key={warehouse.id} value={warehouse.id}>
+                    {warehouse.name} ({warehouse.code})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product ID <span className="text-red-500">*</span>
+                Product <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={productId}
                 onChange={(e) => setProductId(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">Select product</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} ({product.sku})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -258,27 +300,39 @@ function OperationsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Warehouse ID <span className="text-red-500">*</span>
+                Warehouse <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={deliveryWarehouseId}
                 onChange={(e) => setDeliveryWarehouseId(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">Select warehouse</option>
+                {warehouses.map((warehouse) => (
+                  <option key={warehouse.id} value={warehouse.id}>
+                    {warehouse.name} ({warehouse.code})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product ID <span className="text-red-500">*</span>
+                Product <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={deliveryProductId}
                 onChange={(e) => setDeliveryProductId(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                <option value="">Select product</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} ({product.sku})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -386,4 +440,3 @@ function OperationsPage() {
 }
 
 export default OperationsPage;
-
