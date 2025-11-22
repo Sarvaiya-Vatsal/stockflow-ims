@@ -72,9 +72,11 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Dashboard</h2>
-        <div className="text-gray-600">Loading...</div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -82,24 +84,65 @@ function DashboardPage() {
   if (error) {
     return (
       <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Dashboard</h2>
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
+          <p className="font-medium">Error</p>
+          <p className="text-sm">{error}</p>
         </div>
       </div>
     );
   }
 
+  const cards = [
+    {
+      title: "Total Products",
+      value: totalProducts,
+      icon: "📦",
+      color: "from-blue-500 to-blue-600",
+      textColor: "text-blue-600",
+    },
+    {
+      title: "Total Warehouses",
+      value: totalWarehouses,
+      icon: "🏭",
+      color: "from-purple-500 to-purple-600",
+      textColor: "text-purple-600",
+    },
+    {
+      title: "Low Stock Items",
+      value: lowStockCount,
+      icon: "⚠️",
+      color: "from-red-500 to-red-600",
+      textColor: "text-red-600",
+    },
+    {
+      title: "Pending Receipts",
+      value: pendingReceipts,
+      icon: "📥",
+      color: "from-yellow-500 to-yellow-600",
+      textColor: "text-yellow-600",
+    },
+    {
+      title: "Pending Deliveries",
+      value: pendingDeliveries,
+      icon: "📤",
+      color: "from-orange-500 to-orange-600",
+      textColor: "text-orange-600",
+    },
+  ];
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Dashboard</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
+          <p className="text-gray-600 mt-1">Overview of your inventory</p>
+        </div>
         <div className="flex items-center space-x-3">
-          <label className="text-sm text-gray-700">Filter by Warehouse:</label>
+          <label className="text-sm font-medium text-gray-700">Filter:</label>
           <select
             value={selectedWarehouse}
             onChange={(e) => setSelectedWarehouse(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
           >
             <option value="">All Warehouses</option>
             {warehouses.map((warehouse) => (
@@ -111,87 +154,108 @@ function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Total Products</p>
-          <p className="text-3xl font-semibold text-gray-800">{totalProducts}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Total Warehouses</p>
-          <p className="text-3xl font-semibold text-gray-800">{totalWarehouses}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Low Stock Items</p>
-          <p className="text-3xl font-semibold text-red-600">{lowStockCount}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Pending Receipts</p>
-          <p className="text-3xl font-semibold text-yellow-600">{pendingReceipts}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Pending Deliveries</p>
-          <p className="text-3xl font-semibold text-orange-600">{pendingDeliveries}</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {cards.map((card, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100"
+          >
+            <div className={`bg-gradient-to-br ${card.color} p-4`}>
+              <div className="flex items-center justify-between">
+                <span className="text-3xl">{card.icon}</span>
+                <div className="text-right">
+                  <p className="text-white text-3xl font-bold">{card.value}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className={`text-sm font-semibold ${card.textColor} uppercase tracking-wide`}>
+                {card.title}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
-        {recentActivity.length === 0 ? (
-          <p className="text-gray-600">No recent activity</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Date/Time
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Product
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Warehouse
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Change
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Type
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    Reference
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentActivity.map((entry) => (
-                  <tr key={entry.id} className="border-b border-gray-100">
-                    <td className="py-3 px-4 text-sm text-gray-700">
-                      {formatDate(entry.createdAt)}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-700">
-                      {entry.product?.name || entry.productId}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-700">
-                      {entry.warehouse?.name || entry.warehouseId}
-                    </td>
-                    <td
-                      className={`py-3 px-4 text-sm font-medium ${
-                        entry.change > 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      {formatChange(entry.change)}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-700">{entry.type}</td>
-                    <td className="py-3 px-4 text-sm text-gray-700">
-                      {entry.reference || "-"}
-                    </td>
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+          <h3 className="text-lg font-bold text-gray-800 flex items-center space-x-2">
+            <span>📋</span>
+            <span>Recent Activity</span>
+          </h3>
+        </div>
+        <div className="p-6">
+          {recentActivity.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No recent activity</p>
+              <p className="text-gray-400 text-sm mt-1">Stock movements will appear here</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-gray-200">
+                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Date/Time
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Product
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Warehouse
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Change
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Reference
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {recentActivity.map((entry) => (
+                    <tr
+                      key={entry.id}
+                      className="hover:bg-blue-50 transition-colors duration-150"
+                    >
+                      <td className="py-4 px-4 text-sm text-gray-700">
+                        {formatDate(entry.createdAt)}
+                      </td>
+                      <td className="py-4 px-4 text-sm font-medium text-gray-900">
+                        {entry.product?.name || entry.productId}
+                      </td>
+                      <td className="py-4 px-4 text-sm text-gray-700">
+                        {entry.warehouse?.name || entry.warehouseId}
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                            entry.change > 0
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {formatChange(entry.change)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                          {entry.type}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-sm text-gray-600 font-mono">
+                        {entry.reference || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

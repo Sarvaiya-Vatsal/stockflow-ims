@@ -105,6 +105,5 @@ async function getAllReceipts(req, res) {
 module.exports = {
   createReceipt,
   getAllReceipts,
-  validateReceipt,
 };
 

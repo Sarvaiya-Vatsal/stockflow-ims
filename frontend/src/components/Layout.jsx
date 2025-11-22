@@ -27,54 +27,68 @@ function Layout() {
     { path: "/profile", label: "Profile" },
   ];
 
+  const getIcon = (path) => {
+    const icons = {
+      "/dashboard": "📊",
+      "/products": "📦",
+      "/warehouses": "🏭",
+      "/operations": "🚚",
+      "/profile": "👤",
+    };
+    return icons[path] || "•";
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-800">StockFlow IMS</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+      <aside className="w-64 bg-white shadow-lg flex flex-col">
+        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
+          <h1 className="text-xl font-bold text-white">StockFlow IMS</h1>
+          <p className="text-xs text-blue-100 mt-1">Inventory Management</p>
         </div>
         <nav className="flex-1 p-4">
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {navItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`block px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                     location.pathname === item.path
-                      ? "bg-blue-50 text-blue-700 font-medium"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 font-semibold shadow-sm"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
                   }`}
                 >
-                  {item.label}
+                  <span className="text-lg">{getIcon(item.path)}</span>
+                  <span>{item.label}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center space-x-2 px-4 py-2.5 text-left text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 font-medium"
           >
-            Sign Out
+            <span>🚪</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-800">
+        <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">
             {navItems.find((item) => item.path === location.pathname)?.label ||
               "Dashboard"}
           </h2>
           {user && (
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-800">{user.name}</p>
+            <div className="flex items-center space-x-4">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-gray-800">{user.name}</p>
                 <p className="text-xs text-gray-500 capitalize">{user.role}</p>
               </div>
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-medium text-sm">
+              <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                <span className="text-white font-semibold text-sm">
                   {user.name.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -82,7 +96,7 @@ function Layout() {
           )}
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 overflow-auto">
           <Outlet />
         </main>
       </div>
