@@ -2,42 +2,21 @@ const prisma = require("../config/prismaClient");
 
 async function getLedger(req, res) {
   try {
-    const { productId, warehouseId, type, limit } = req.query;
-
-    const where = {};
-    if (productId) {
-      where.productId = productId;
-    }
-    if (warehouseId) {
-      where.warehouseId = warehouseId;
-    }
-    if (type) {
-      where.type = type;
-    }
-
-    const limitValue = parseInt(limit);
-    const takeLimit = limitValue > 0 ? limitValue : 50;
-
     const entries = await prisma.ledgerEntry.findMany({
-      where,
+      orderBy: { createdAt: "desc" },
+      take: 50,
       include: {
-        product: true,
-        warehouse: true,
+        product: { select: { id: true, name: true, sku: true } },
+        warehouse: { select: { id: true, name: true, code: true } },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: takeLimit,
     });
 
     res.json(entries);
-  } catch (error) {
-    console.error("Error fetching ledger:", error);
-    res.status(500).json({ error: "Failed to fetch ledger entries" });
+  } catch (err) {
+    console.error("Error fetching ledger:", err);
+    res.status(500).json({ error: "Failed to fetch ledger" });
   }
 }
 
-module.exports = {
-  getLedger,
-};
+module.exports = { getLedger };
 
