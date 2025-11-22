@@ -42,6 +42,15 @@ async function createDelivery(req, res) {
     });
 
     for (const line of lines) {
+      const product = await prisma.product.findUnique({
+        where: { id: line.productId },
+      });
+
+      if (!product) {
+        await prisma.delivery.delete({ where: { id: delivery.id } });
+        return res.status(400).json({ error: `Product ${line.productId} not found` });
+      }
+
       try {
         await applyStockChange({
           productId: line.productId,
@@ -51,11 +60,12 @@ async function createDelivery(req, res) {
           reference: delivery.reference,
         });
       } catch (error) {
-        if (error.message === "Insufficient stock") {
-          await prisma.delivery.delete({ where: { id: delivery.id } });
-          return res.status(400).json({ error: "Insufficient stock" });
-        }
-        throw error;
+        await prisma.delivery.delete({ where: { id: delivery.id } });
+        return res.status(400).json({
+          error: error.message === "Insufficient stock"
+            ? "Insufficient stock"
+            : "Failed to update stock",
+        });
       }
     }
 

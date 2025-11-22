@@ -42,13 +42,31 @@ async function createReceipt(req, res) {
     });
 
     for (const line of lines) {
-      await applyStockChange({
-        productId: line.productId,
-        warehouseId,
-        quantityChange: line.quantity,
-        type: "RECEIPT",
-        reference: receipt.reference,
+      const product = await prisma.product.findUnique({
+        where: { id: line.productId },
       });
+
+      if (!product) {
+        await prisma.receipt.delete({ where: { id: receipt.id } });
+        return res.status(400).json({ error: `Product ${line.productId} not found` });
+      }
+
+      try {
+        await applyStockChange({
+          productId: line.productId,
+          warehouseId,
+          quantityChange: line.quantity,
+          type: "RECEIPT",
+          reference: receipt.reference,
+        });
+      } catch (error) {
+        await prisma.receipt.delete({ where: { id: receipt.id } });
+        return res.status(400).json({
+          error: error.message === "Insufficient stock"
+            ? "Insufficient stock"
+            : "Failed to update stock",
+        });
+      }
     }
 
     res.status(201).json(receipt);
