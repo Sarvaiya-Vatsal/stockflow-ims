@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentStatus {
+  DRAFT
+  CONFIRMED
+  CANCELED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("user")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id            String         @id @default(cuid())
+  name          String
+  sku           String         @unique
+  category      String?
+  unit          String
+  reorderLevel  Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  stocks        InventoryStock[]
+  ledgerEntries LedgerEntry[]
+}
+
+model Warehouse {
+  id                String            @id @default(cuid())
+  name              String
+  code              String            @unique
+  location          String?
+  createdAt         DateTime          @default(now())
+  stocks            InventoryStock[]
+  ledgerEntries     LedgerEntry[]
+  receipts          Receipt[]
+  deliveries        Delivery[]
+  fromTransfers     InternalTransfer[] @relation("FromWarehouse")
+  toTransfers       InternalTransfer[] @relation("ToWarehouse")
+  stockAdjustments  StockAdjustment[]
+}
+
+model InventoryStock {
+  id         String       @id @default(cuid())
+  productId  String
+  warehouseId String
+  quantity   Int          @default(0)
+  product    Product      @relation(fields: [productId], references: [id])
+  warehouse  Warehouse    @relation(fields: [warehouseId], references: [id])
+
+  @@unique([productId, warehouseId])
+}
+
+model LedgerEntry {
+  id         String     @id @default(cuid())
+  productId  String
+  warehouseId String
+  change     Int
+  type       String
+  reference  String?
+  createdAt  DateTime   @default(now())
+  product    Product    @relation(fields: [productId], references: [id])
+  warehouse  Warehouse  @relation(fields: [warehouseId], references: [id])
+}
+
+model Receipt {
+  id         String         @id @default(cuid())
+  reference  String         @unique
+  supplier   String?
+  warehouseId String
+  status     DocumentStatus @default(DRAFT)
+  createdAt  DateTime       @default(now())
+  warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
+}
+
+model Delivery {
+  id         String         @id @default(cuid())
+  reference  String         @unique
+  customer   String?
+  warehouseId String
+  status     DocumentStatus @default(DRAFT)
+  createdAt  DateTime       @default(now())
+  warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
+}
+
+model InternalTransfer {
+  id            String         @id @default(cuid())
+  reference     String         @unique
+  fromWarehouseId String
+  toWarehouseId String
+  status        DocumentStatus @default(DRAFT)
+  createdAt     DateTime       @default(now())
+  fromWarehouse Warehouse      @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
+  toWarehouse   Warehouse      @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
+}
+
+model StockAdjustment {
+  id         String    @id @default(cuid())
+  reference  String    @unique
+  warehouseId String
+  reason     String?
+  createdAt  DateTime  @default(now())
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  otp       String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  otp       String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+}
