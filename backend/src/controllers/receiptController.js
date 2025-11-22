@@ -76,7 +76,35 @@ async function createReceipt(req, res) {
   }
 }
 
+async function getAllReceipts(req, res) {
+  try {
+    const { warehouseId, status } = req.query;
+
+    const whereClause = {};
+    if (warehouseId) whereClause.warehouseId = warehouseId;
+    if (status) whereClause.status = status;
+
+    const receipts = await prisma.receipt.findMany({
+      where: whereClause,
+      include: {
+        warehouse: {
+          select: { id: true, name: true, code: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(receipts);
+  } catch (error) {
+    console.error("Error fetching receipts:", error);
+    res.status(500).json({ error: "Failed to fetch receipts" });
+  }
+}
+
+
 module.exports = {
   createReceipt,
+  getAllReceipts,
+  validateReceipt,
 };
 

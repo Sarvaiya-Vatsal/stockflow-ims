@@ -8,6 +8,7 @@ const warehouseRoutes = require("./routes/warehouseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
 const receiptRoutes = require("./routes/receiptRoutes");
+const adjustmentRoutes = require("./routes/adjustmentRoutes");
 const ledgerRoutes = require("./routes/ledgerRoutes");
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api/warehouses", warehouseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/stock/deliveries", deliveryRoutes);
 app.use("/api/stock/receipts", receiptRoutes);
+app.use("/api/stock/adjustments", adjustmentRoutes);
 app.use("/api/stock/ledger", ledgerRoutes);
 
 module.exports = app;

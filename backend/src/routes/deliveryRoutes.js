@@ -4,6 +4,7 @@ const { authRequired } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+router.get("/", authRequired, deliveryController.getAllDeliveries);
 router.post("/", authRequired, deliveryController.createDelivery);
 
 module.exports = router;

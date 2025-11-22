@@ -19,8 +19,25 @@ function OperationsPage() {
   const [deliverySuccess, setDeliverySuccess] = useState("");
   const [deliveryError, setDeliveryError] = useState("");
 
+  const [adjustmentWarehouseId, setAdjustmentWarehouseId] = useState("");
+  const [adjustmentProductId, setAdjustmentProductId] = useState("");
+  const [adjustmentQuantity, setAdjustmentQuantity] = useState("");
+  const [adjustmentReason, setAdjustmentReason] = useState("");
+  const [adjustmentLoading, setAdjustmentLoading] = useState(false);
+  const [adjustmentSuccess, setAdjustmentSuccess] = useState("");
+  const [adjustmentError, setAdjustmentError] = useState("");
+
   const [ledgerEntries, setLedgerEntries] = useState([]);
   const [ledgerLoading, setLedgerLoading] = useState(false);
+
+  const [receipts, setReceipts] = useState([]);
+  const [receiptsLoading, setReceiptsLoading] = useState(false);
+
+  const [deliveries, setDeliveries] = useState([]);
+  const [deliveriesLoading, setDeliveriesLoading] = useState(false);
+
+  const [adjustments, setAdjustments] = useState([]);
+  const [adjustmentsLoading, setAdjustmentsLoading] = useState(false);
 
   const [products, setProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
@@ -43,6 +60,67 @@ function OperationsPage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "receipts") {
+      fetchReceipts();
+    } else if (activeTab === "deliveries") {
+      fetchDeliveries();
+    } else if (activeTab === "adjustments") {
+      fetchAdjustments();
+    } else if (activeTab === "history") {
+      fetchLedger();
+    }
+  }, [activeTab]);
+
+  const fetchReceipts = async () => {
+    setReceiptsLoading(true);
+    try {
+      const response = await api.get("/stock/receipts");
+      setReceipts(response.data);
+    } catch (err) {
+      console.error("Failed to fetch receipts:", err);
+    } finally {
+      setReceiptsLoading(false);
+    }
+  };
+
+  const fetchDeliveries = async () => {
+    setDeliveriesLoading(true);
+    try {
+      const response = await api.get("/stock/deliveries");
+      setDeliveries(response.data);
+    } catch (err) {
+      console.error("Failed to fetch deliveries:", err);
+    } finally {
+      setDeliveriesLoading(false);
+    }
+  };
+
+  const fetchAdjustments = async () => {
+    setAdjustmentsLoading(true);
+    try {
+      const response = await api.get("/stock/adjustments");
+      setAdjustments(response.data);
+    } catch (err) {
+      console.error("Failed to fetch adjustments:", err);
+    } finally {
+      setAdjustmentsLoading(false);
+    }
+  };
+
+  const fetchLedger = async () => {
+    setLedgerLoading(true);
+    try {
+      const response = await api.get("/stock/ledger");
+      setLedgerEntries(response.data);
+    } catch (err) {
+      console.error("Failed to fetch ledger:", err);
+      setLedgerEntries([]);
+    } finally {
+      setLedgerLoading(false);
+    }
+  };
 
   const handleReceiptSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +152,7 @@ function OperationsPage() {
       setWarehouseId("");
       setProductId("");
       setQuantity("");
+      fetchReceipts();
     } catch (err) {
       setError(err.response?.data?.error || "Failed to create receipt");
     } finally {
@@ -111,6 +190,7 @@ function OperationsPage() {
       setDeliveryWarehouseId("");
       setDeliveryProductId("");
       setDeliveryQuantity("");
+      fetchDeliveries();
     } catch (err) {
       setDeliveryError(
         err.response?.data?.error || "Failed to create delivery"
@@ -120,23 +200,46 @@ function OperationsPage() {
     }
   };
 
-  useEffect(() => {
-    if (activeTab === "history") {
-      const fetchLedger = async () => {
-        setLedgerLoading(true);
-        try {
-          const response = await api.get("/stock/ledger");
-          setLedgerEntries(response.data);
-        } catch (err) {
-          console.error("Failed to fetch ledger:", err);
-          setLedgerEntries([]);
-        } finally {
-          setLedgerLoading(false);
-        }
-      };
-      fetchLedger();
+  const handleAdjustmentSubmit = async (e) => {
+    e.preventDefault();
+    setAdjustmentError("");
+    setAdjustmentSuccess("");
+
+    if (!adjustmentWarehouseId || !adjustmentProductId || adjustmentQuantity === "") {
+      setAdjustmentError("Warehouse, Product, and New Quantity are required");
+      return;
     }
-  }, [activeTab]);
+
+    const qty = parseFloat(adjustmentQuantity);
+    if (isNaN(qty) || qty < 0) {
+      setAdjustmentError("New quantity must be a non-negative number");
+      return;
+    }
+
+    setAdjustmentLoading(true);
+
+    try {
+      await api.post("/stock/adjustments", {
+        warehouseId: adjustmentWarehouseId,
+        productId: adjustmentProductId,
+        newQuantity: qty,
+        reason: adjustmentReason || null,
+      });
+
+      setAdjustmentSuccess("Adjustment created successfully");
+      setAdjustmentWarehouseId("");
+      setAdjustmentProductId("");
+      setAdjustmentQuantity("");
+      setAdjustmentReason("");
+      fetchAdjustments();
+    } catch (err) {
+      setAdjustmentError(
+        err.response?.data?.error || "Failed to create adjustment"
+      );
+    } finally {
+      setAdjustmentLoading(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -182,6 +285,16 @@ function OperationsPage() {
             Deliveries
           </button>
           <button
+            onClick={() => setActiveTab("adjustments")}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === "adjustments"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
+            Adjustments
+          </button>
+          <button
             onClick={() => setActiveTab("history")}
             className={`px-4 py-2 font-medium transition-colors ${
               activeTab === "history"
@@ -195,176 +308,455 @@ function OperationsPage() {
       </div>
 
       {activeTab === "receipts" && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Create Receipt
-          </h3>
-          <form onSubmit={handleReceiptSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Supplier (Optional)
-              </label>
-              <input
-                type="text"
-                value={supplier}
-                onChange={(e) => setSupplier(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Warehouse <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={warehouseId}
-                onChange={(e) => setWarehouseId(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Create Receipt
+            </h3>
+            <form onSubmit={handleReceiptSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Supplier (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={supplier}
+                  onChange={(e) => setSupplier(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Warehouse <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={warehouseId}
+                  onChange={(e) => setWarehouseId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select warehouse</option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name} ({warehouse.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Product <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={productId}
+                  onChange={(e) => setProductId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select product</option>
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name} ({product.sku})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantity <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  required
+                  min="1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {error && (
+                <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
+                  {success}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
               >
-                <option value="">Select warehouse</option>
-                {warehouses.map((warehouse) => (
-                  <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name} ({warehouse.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={productId}
-                onChange={(e) => setProductId(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select product</option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name} ({product.sku})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                required
-                min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
-                {error}
+                {loading ? "Creating..." : "Create Receipt"}
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Receipts List
+            </h3>
+            {receiptsLoading ? (
+              <div className="text-gray-600">Loading...</div>
+            ) : receipts.length === 0 ? (
+              <div className="text-gray-600">No receipts found</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Reference
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Warehouse
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Supplier
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {receipts.map((receipt) => (
+                      <tr key={receipt.id} className="border-b border-gray-100">
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {receipt.reference}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {receipt.warehouse?.name || receipt.warehouseId}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {receipt.supplier || "-"}
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              receipt.status === "CONFIRMED"
+                                ? "bg-green-100 text-green-800"
+                                : receipt.status === "DRAFT"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {receipt.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {formatDate(receipt.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-            {success && (
-              <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
-                {success}
-              </div>
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating..." : "Create Receipt"}
-            </button>
-          </form>
+          </div>
         </div>
       )}
 
       {activeTab === "deliveries" && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Create Delivery
-          </h3>
-          <form onSubmit={handleDeliverySubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Customer (Optional)
-              </label>
-              <input
-                type="text"
-                value={customer}
-                onChange={(e) => setCustomer(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Warehouse <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={deliveryWarehouseId}
-                onChange={(e) => setDeliveryWarehouseId(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Create Delivery
+            </h3>
+            <form onSubmit={handleDeliverySubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Customer (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={customer}
+                  onChange={(e) => setCustomer(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Warehouse <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={deliveryWarehouseId}
+                  onChange={(e) => setDeliveryWarehouseId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select warehouse</option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name} ({warehouse.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Product <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={deliveryProductId}
+                  onChange={(e) => setDeliveryProductId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select product</option>
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name} ({product.sku})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantity <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={deliveryQuantity}
+                  onChange={(e) => setDeliveryQuantity(e.target.value)}
+                  required
+                  min="1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {deliveryError && (
+                <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                  {deliveryError}
+                </div>
+              )}
+              {deliverySuccess && (
+                <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
+                  {deliverySuccess}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={deliveryLoading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
               >
-                <option value="">Select warehouse</option>
-                {warehouses.map((warehouse) => (
-                  <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.name} ({warehouse.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={deliveryProductId}
-                onChange={(e) => setDeliveryProductId(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select product</option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name} ({product.sku})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                value={deliveryQuantity}
-                onChange={(e) => setDeliveryQuantity(e.target.value)}
-                required
-                min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            {deliveryError && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
-                {deliveryError}
+                {deliveryLoading ? "Creating..." : "Create Delivery"}
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Deliveries List
+            </h3>
+            {deliveriesLoading ? (
+              <div className="text-gray-600">Loading...</div>
+            ) : deliveries.length === 0 ? (
+              <div className="text-gray-600">No deliveries found</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Reference
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Warehouse
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Customer
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deliveries.map((delivery) => (
+                      <tr key={delivery.id} className="border-b border-gray-100">
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {delivery.reference}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {delivery.warehouse?.name || delivery.warehouseId}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {delivery.customer || "-"}
+                        </td>
+                        <td className="py-3 px-4 text-sm">
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              delivery.status === "CONFIRMED"
+                                ? "bg-green-100 text-green-800"
+                                : delivery.status === "DRAFT"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {delivery.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {formatDate(delivery.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-            {deliverySuccess && (
-              <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
-                {deliverySuccess}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "adjustments" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Create Adjustment
+            </h3>
+            <form onSubmit={handleAdjustmentSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Warehouse <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={adjustmentWarehouseId}
+                  onChange={(e) => setAdjustmentWarehouseId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select warehouse</option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name} ({warehouse.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Product <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={adjustmentProductId}
+                  onChange={(e) => setAdjustmentProductId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select product</option>
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name} ({product.sku})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  New Quantity <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  value={adjustmentQuantity}
+                  onChange={(e) => setAdjustmentQuantity(e.target.value)}
+                  required
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Enter the actual counted quantity
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reason (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={adjustmentReason}
+                  onChange={(e) => setAdjustmentReason(e.target.value)}
+                  placeholder="e.g., Damaged items, counting error"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {adjustmentError && (
+                <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                  {adjustmentError}
+                </div>
+              )}
+              {adjustmentSuccess && (
+                <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
+                  {adjustmentSuccess}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={adjustmentLoading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+              >
+                {adjustmentLoading ? "Creating..." : "Create Adjustment"}
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Adjustments List
+            </h3>
+            {adjustmentsLoading ? (
+              <div className="text-gray-600">Loading...</div>
+            ) : adjustments.length === 0 ? (
+              <div className="text-gray-600">No adjustments found</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Reference
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Warehouse
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Reason
+                      </th>
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adjustments.map((adjustment) => (
+                      <tr key={adjustment.id} className="border-b border-gray-100">
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {adjustment.reference}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {adjustment.warehouse?.name || adjustment.warehouseId}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {adjustment.reason || "-"}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {formatDate(adjustment.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-            <button
-              type="submit"
-              disabled={deliveryLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-            >
-              {deliveryLoading ? "Creating..." : "Create Delivery"}
-            </button>
-          </form>
+          </div>
         </div>
       )}
 

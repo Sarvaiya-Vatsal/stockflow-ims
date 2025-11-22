@@ -1,7 +1,23 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
@@ -35,6 +51,14 @@ function Layout() {
             ))}
           </ul>
         </nav>
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
       </aside>
 
       <div className="flex-1 flex flex-col">
@@ -43,7 +67,19 @@ function Layout() {
             {navItems.find((item) => item.path === location.pathname)?.label ||
               "Dashboard"}
           </h2>
-          <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+          {user && (
+            <div className="flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+              </div>
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-medium text-sm">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            </div>
+          )}
         </header>
 
         <main className="flex-1 p-6">

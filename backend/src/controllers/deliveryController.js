@@ -76,7 +76,33 @@ async function createDelivery(req, res) {
   }
 }
 
+async function getAllDeliveries(req, res) {
+  try {
+    const { warehouseId, status } = req.query;
+
+    const whereClause = {};
+    if (warehouseId) whereClause.warehouseId = warehouseId;
+    if (status) whereClause.status = status;
+
+    const deliveries = await prisma.delivery.findMany({
+      where: whereClause,
+      include: {
+        warehouse: {
+          select: { id: true, name: true, code: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(deliveries);
+  } catch (error) {
+    console.error("Error fetching deliveries:", error);
+    res.status(500).json({ error: "Failed to fetch deliveries" });
+  }
+}
+
 module.exports = {
   createDelivery,
+  getAllDeliveries,
 };
 
