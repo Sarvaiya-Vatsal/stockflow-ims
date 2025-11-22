@@ -6,6 +6,7 @@ function Layout() {
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/products", label: "Products" },
+    { path: "/warehouses", label: "Warehouses" },
     { path: "/operations", label: "Operations" },
     { path: "/profile", label: "Profile" },
   ];

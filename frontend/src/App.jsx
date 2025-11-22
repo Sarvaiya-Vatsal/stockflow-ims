@@ -8,6 +8,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProductsPage from "./pages/ProductsPage";
+import WarehousesPage from "./pages/WarehousesPage";
 import OperationsPage from "./pages/OperationsPage";
 import ProfilePage from "./pages/ProfilePage";
 
@@ -31,6 +32,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="products" element={<ProductsPage />} />
+          <Route path="warehouses" element={<WarehousesPage />} />
           <Route path="operations" element={<OperationsPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

@@ -1,9 +1,10 @@
 const express = require("express");
 const receiptController = require("../controllers/receiptController");
+const { authRequired } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/", receiptController.createReceipt);
+router.post("/", authRequired, receiptController.createReceipt);
 
 module.exports = router;
 
