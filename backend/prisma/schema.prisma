@@ -122,3 +122,12 @@ model EmailVerification {
   expiresAt DateTime
   verified  Boolean  @default(false)
 }
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  otp       String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+}

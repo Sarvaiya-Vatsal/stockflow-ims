@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const verificationRoutes = require("./routes/verificationRoutes");
+const passwordResetRoutes = require("./routes/passwordResetRoutes");
 const productRoutes = require("./routes/productRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
@@ -22,6 +23,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", verificationRoutes);
+app.use("/api/auth", passwordResetRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/stock/deliveries", deliveryRoutes);

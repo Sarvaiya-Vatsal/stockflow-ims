@@ -28,5 +28,23 @@ async function sendOTP(email, otp) {
   await transporter.sendMail(mailOptions);
 }
 
-module.exports = { sendOTP };
+async function sendPasswordResetOTP(email, otp) {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: "StockFlow IMS - Password Reset OTP",
+    text: `Your password reset code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+    html: `
+      <div>
+        <h2>Password Reset</h2>
+        <p>Your password reset code is: <strong>${otp}</strong></p>
+        <p>This code will expire in 10 minutes.</p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+module.exports = { sendOTP, sendPasswordResetOTP };
 
